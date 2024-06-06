@@ -34,6 +34,7 @@ export function UpdatePackage() {
   const [newPromotion, setNewPromotion] = useState([]);
   const [selectedFiles, setselectedFiles] = useState();
   const [filterDevices, setFilterDevices] = useState([]);
+  
   let { id } = useParams();
 
   const [listDevices, setListDevice] = useState({
@@ -128,8 +129,8 @@ export function UpdatePackage() {
         const newfilterPromotion = response.promotions.map((item) => {
           newPromotionList.push(item.id);
         });
+        setIdPromote(response.promotions[0].discountAmount);
         setNewPromotion(newPromotionList);
-        console.log(newPromotion);
         setFilterDevices(filteredData);
         setNewPackage(response);
 
@@ -736,7 +737,7 @@ export function UpdatePackage() {
                       Chiết khấu
                     </span>
                     <span className='inline-block font-poppin font-normal text-[16px]'>
-                      {promotionId?.discountAmount}%
+                      {idPromote}%
                     </span>
                   </div>
                 </div>
@@ -746,7 +747,7 @@ export function UpdatePackage() {
                   </span>
                   <span className='inline-block font-poppin font-normal text-red-500 text-[16px] mb-[15px]'>
                     {formatCurrency(
-                      totalAllPrice(newArr, promotionId?.discountAmount)
+                      totalAllPrice(newArr, idPromote)
                     )}
                   </span>
                 </div>

@@ -13,7 +13,7 @@ export function Sidebar() {
           </div>
           <div className='flex flex-col justify-between items-center h-full'>
             <div className='flex flex-col gap-[28px]'>
-              {/* <div>
+              <div>
                 <Link
                   to='/dashboard'
                   className='flex items-center justify-start gap-[10px]'
@@ -27,7 +27,7 @@ export function Sidebar() {
                     Trang chủ
                   </span>
                 </Link>
-              </div> */}
+              </div>
               <div className='flex items-center justify-between gap-[50px]'>
                 <Link to='/device-page' className=''>
                   <div className='flex items-center justify-center gap-[10px]'>

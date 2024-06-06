@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { formatCurrency } from '../utils/formatCurrentcy';
 import { useDebounce } from '../hook/useDebounce';
 import { Icon } from '@iconify/react';
+
 export function PackagePage() {
   const [messageApi, contextHolder] = message.useMessage();
   const [packages, setPackageDevices] = useState({
@@ -74,21 +75,26 @@ export function PackagePage() {
 
   const columns = [
     {
-      title: 'Tên thiết bị',
+      title: 'Tên gói thiết bị',
       dataIndex: 'name',
       key: 'name',
       render: (text, record) => (
         <Link
           to={`/package-page/update-package/${record.id}`}
-          className='hover:text-blue-300 font-poppin text-[14px] font-medium text-[#495057]'
+          className="hover:text-blue-300 font-poppin text-[14px] font-medium text-[#495057] flex items-center"
         >
+          <img
+            src={record.images[0].url} // Ensure your data includes an image URL
+            alt={text}
+            style={{ width: 50, height: 50, marginRight: 10 }}
+          />
           {text}
         </Link>
       ),
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
         <div style={{ padding: 8 }}>
           <Input
-            placeholder='Tìm kiếm'
+            placeholder="Tìm kiếm"
             value={selectedKeys[0]}
             onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
             onPressEnter={() => confirm()}
@@ -96,7 +102,7 @@ export function PackagePage() {
           />
         </div>
       ),
-      filterIcon: () => <Icon icon='carbon:search' />,
+      filterIcon: () => <Icon icon="carbon:search" />,
       onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
     },
     {
@@ -115,8 +121,8 @@ export function PackagePage() {
       key: 'action',
       render: (text, record) => (
         <Popconfirm
-          title='Ngừng kinh doanh'
-          description='Bạn có muốn ngừng kinh doanh gói sản phẩm này không?'
+          title="Ngừng kinh doanh"
+          description="Bạn có muốn ngừng kinh doanh gói sản phẩm này không?"
           open={openPopupConfirm[record.id]}
           onConfirm={() => handleOkPopUpConfirm(record.id)}
           okButtonProps={{
@@ -124,19 +130,19 @@ export function PackagePage() {
           }}
           onCancel={handleCancelPopUpConfirm}
         >
-        <div className='flex justify-center'>
-        <Icon
-            key={record.id}
-            onClick={(e) => {
-              e.stopPropagation();
-              showPopconfirm(record.id);
-            }}
-            icon='material-symbols:delete-forever-rounded'
-            width='20'
-            height='20'
-            style={{ color: '#2f8e58', cursor: 'pointer' }}
-          />
-        </div>
+          <div className="flex justify-center">
+            <Icon
+              key={record.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                showPopconfirm(record.id);
+              }}
+              icon="material-symbols:delete-forever-rounded"
+              width="20"
+              height="20"
+              style={{ color: '#2f8e58', cursor: 'pointer' }}
+            />
+          </div>
         </Popconfirm>
       ),
     },
@@ -144,24 +150,24 @@ export function PackagePage() {
 
   return (
     <>
+      {contextHolder}
       <BreadCrumb />
-      <div className='px-[24px] pt-[24px]'>
-        <Spin tip='Loading...' spinning={deviceListLoading}>
-        <div className='flex items-center justify-between mx-[20px] mb-[20px] '>
-              <span className='flex items-center justify-between bg-[#0AB39C]  px-[15px] py-[10px] rounded-[4px]'>
-                <Icon icon='ic:baseline-plus' style={{ color: 'white' }} />
-                <Link
-                  to='/package-page/create-device'
-                  className='text-white font-poppin font-normal text-[13px]'
-                >
-                  Thêm gói thiết bị
-                </Link>
-              </span>
-            </div>
-          <div className='bg-[white]  pt-[13px] pb-[16px] '>
-
-            <div className='flex items-center justify-between px-[14px] mb-[15px]'>
-              <span className='text-[#495057] font-poppin font-medium text-[16px]'>
+      <div className="px-[24px] pt-[24px]">
+        <Spin tip="Loading..." spinning={deviceListLoading}>
+          <div className="flex items-center justify-between mx-[20px] mb-[20px] ">
+            <span className="flex items-center justify-between bg-[#0AB39C] px-[15px] py-[10px] rounded-[4px]">
+              <Icon icon="ic:baseline-plus" style={{ color: 'white' }} />
+              <Link
+                to="/package-page/create-device"
+                className="text-white font-poppin font-normal text-[13px]"
+              >
+                Thêm gói thiết bị
+              </Link>
+            </span>
+          </div>
+          <div className="bg-[white] pt-[13px] pb-[16px] ">
+            <div className="flex items-center justify-between px-[14px] mb-[15px]">
+              <span className="text-[#495057] font-poppin font-medium text-[16px]">
                 Danh sách gói sản phẩm
               </span>
             </div>
@@ -172,7 +178,7 @@ export function PackagePage() {
                 pageSize: 10,
                 showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
               }}
-              rowKey='id'
+              rowKey="id"
               loading={deviceListLoading}
               onChange={handleTableChange}
             />

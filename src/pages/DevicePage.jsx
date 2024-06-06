@@ -308,8 +308,13 @@ export function DevicePage() {
       render: (text, record) => (
         <Link
           to={`/device-page/update-device/${record.id}`}
-          className='hover:text-blue-300 font-poppin text-[14px] font-medium text-[#495057]'
+          className='hover:text-blue-300 font-poppin text-[14px] font-medium text-[#495057] flex items-center'
         >
+                <img
+            src={record.images[0].url} // Ensure your data includes an image URL
+            alt={text}
+            style={{ width: 50, height: 50, marginRight: 10 }}
+          />
           {text}
         </Link>
       ),

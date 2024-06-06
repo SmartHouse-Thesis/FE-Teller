@@ -9,7 +9,6 @@ import { Admin } from './layout/Admin';
 import { Layout } from './pages/Layout';
 import { Sidebar } from './components/Sidebar';
 import { Route, Routes } from 'react-router-dom';
-import { Dashboard } from './pages/Dashboard';
 import { ConstructionPage } from './pages/ConstructionPage';
 import { DevicePage } from './pages/DevicePage';
 import { PromotionPage } from './pages/PromotionPage';
@@ -31,6 +30,7 @@ import { StaffPage } from './pages/StaffPage';
 import { Staff } from './pages/Staff';
 import { StaffLead } from './pages/StaffLead';
 import Chat from './pages/Chat';
+import { Dashboard } from './pages/Dashboard';
 
 function App() {
   return (

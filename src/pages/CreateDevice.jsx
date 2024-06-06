@@ -20,6 +20,9 @@ import packageAPI from '../api/package';
 import TextArea from 'antd/es/input/TextArea';
 import axios from 'axios';
 import axiosClient, { axiosFormClient } from '../api/axiosClient';
+
+const { Option } = Select;
+
 export function CreateDevice() {
   const [messageApi, contextHolder] = message.useMessage();
   const [open, setOpen] = useState(false);
@@ -28,47 +31,26 @@ export function CreateDevice() {
   const [openPromotion, setOpenPromotion] = useState(false);
   const [openProduct, setOpenProduct] = useState(false);
   const [devices, setDevices] = useState();
-  const [idPromote, setIdPromote] = useState(0);
-  const [promotionId, setPromotionId] = useState();
-  const [newPromotion, setNewPromotion] = useState(0);
+  const [promotionList, setPromotionList] = useState([]);
   const [selectedFiles, setselectedFiles] = useState();
   const [filterDevices, setFilterDevices] = useState([]);
   const [manufactureId, setmanufactureId] = useState();
-  const [promotionList, setPromotionList] = useState([]);
   const [listDevices, setListDevice] = useState({
     responses: [],
   });
-
-  const [newDevices, setNewDevices] = useState();
-  const [promotion, setPromotion] = useState();
-  const [manu, setManu] = useState();
   const [newArr, setNewArr] = useState([]);
-  const dateInstall = [
-    {
-      date: 1,
-      label: '1 Ngày',
-    },
-    {
-      date: 2,
-      label: '2 Ngày',
-    },
-    {
-      date: 3,
-      label: '3 Ngày',
-    },
-  ];
+  const [promotion, setPromotion] = useState([]);
+  const [manu, setManu] = useState([]);
+  const [discountAmount, setDiscountAmount] = useState(0);
 
   const { isPending: contractLoading, mutate } = useMutation({
     mutationFn: () => promotionAPI.getPromotion(),
     onSuccess: (response) => {
-      const outputArray = [];
-
-      response.data.forEach((item) => {
-        outputArray.push({
-          value: item.id,
-          label: item.name,
-        });
-      });
+      const outputArray = response.data.map(item => ({
+        value: item.id,
+        label: item.name,
+        discountAmount: item.discountAmount,
+      }));
       setPromotion(outputArray);
     },
     onError: () => {
@@ -78,18 +60,14 @@ export function CreateDevice() {
       });
     },
   });
+
   const { isPending: manufactureLoading, mutate: MutateManu } = useMutation({
     mutationFn: () => manufactureAPI.getManufacture(),
     onSuccess: (response) => {
-      const outputArray = [];
-
-      response?.forEach((item) => {
-        outputArray.push({
-          value: item.id,
-          label: item.name,
-          discount: item.discountAmount,
-        });
-      });
+      const outputArray = response.map(item => ({
+        value: item.id,
+        label: item.name,
+      }));
       setManu(outputArray);
     },
     onError: () => {
@@ -99,19 +77,7 @@ export function CreateDevice() {
       });
     },
   });
-  const { isPending: promotionIdLoading, mutate: mutatePromotionId } =
-    useMutation({
-      mutationFn: () => promotionAPI.getPromotionById(idPromote),
-      onSuccess: (response) => {
-        setPromotionId(response);
-      },
-      onError: () => {
-        messageApi.open({
-          type: 'error',
-          content: 'Error occur when get manufactures list',
-        });
-      },
-    });
+
   const { isPending: createDevicePackageLoading, mutate: mutateDevicePackge } =
     useMutation({
       mutationFn: (params) => packageAPI.createDevicePage(params),
@@ -128,105 +94,106 @@ export function CreateDevice() {
         });
       },
     });
+
   const { isPending: deviceListLoading, mutate: mutateDevices } = useMutation({
     mutationFn: () => devicesAPI.getSmartDevice(manufactureId),
     onSuccess: (response) => {
-      const outputArray = [];
+      const outputArray = response.data.map(item => ({
+        value: item.id,
+        label: item.name,
+      }));
       setListDevice(response);
-      response.data.forEach((item) => {
-        outputArray.push({
-          value: item.id,
-          label: item.name,
-        });
-      });
-
       setDevices(outputArray);
     },
     onError: () => {},
   });
-  const onChangePromotion = (value) => {
-    setPromotionList(value);
-    console.log(promotionList);
-    // setIdPromote(value);
-    // if (value) {
-    //   mutatePromotionId(value);
-    // }
-  };
+
   useEffect(() => {
     mutate();
     MutateManu();
   }, []);
+
   useEffect(() => {
-    if (manufactureAPI) {
+    if (manufactureId) {
       mutateDevices();
-    } else {
-      return;
     }
   }, [manufactureId]);
+
+  useEffect(() => {
+    if (promotionList.length > 0) {
+      const selectedPromotion = promotion.find(item => item.value === promotionList[0]);
+      setDiscountAmount(selectedPromotion ? selectedPromotion.discountAmount : 0);
+    } else {
+      setDiscountAmount(0);
+    }
+  }, [promotionList]);
+
   const handleChange = (value) => {
     const updatedArr = [...newArr];
-    let newArray = listDevices.data.map((item) => {
-      return {
-        ...item,
-        quantity: 1,
-      };
-    });
+    let newArray = listDevices.data.map((item) => ({
+      ...item,
+      quantity: 1,
+    }));
 
     for (let i = 0; i <= newArray.length; i++) {
-      if (newArray[i]?.id == value) {
+      if (newArray[i]?.id === value) {
         let existingItemIndex = updatedArr.findIndex(
-          (item) => item.id == newArray[i].id
+          (item) => item.id === newArray[i].id
         );
-        if (existingItemIndex != -1) {
+        if (existingItemIndex !== -1) {
           updatedArr[existingItemIndex].quantity++;
         } else {
           updatedArr.push(newArray[i]);
         }
       }
     }
-    const filteredDevices = updatedArr.map((device) => {
-      return {
-        smartDeviceId: device.id,
-        quantity: device.quantity,
-      };
-    });
+    const filteredDevices = updatedArr.map((device) => ({
+      smartDeviceId: device.id,
+      quantity: device.quantity,
+    }));
     setFilterDevices(filteredDevices);
     setNewArr(updatedArr);
   };
-  const totalPrice = (newArr) => {
-    let totalPrice = 0;
-    newArr?.map((item) => (totalPrice += item.price * item.quantity));
-    return totalPrice;
-  };
-  const totalAllPrice = (newArr, discountAmount) => {
-    let totalAllPrice = 0;
 
-    newArr?.map(
-      (item) =>
-        (totalAllPrice +=
-          item.price * item.quantity + item.quantity * item.installationPrice)
+  const totalPrice = (newArr) => {
+    return newArr?.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
+
+  const totalAllPrice = (newArr, discountAmount) => {
+    let totalAllPrice = newArr?.reduce(
+      (total, item) => total + (item.price + item.installationPrice) * item.quantity,
+      0
     );
     if (discountAmount) {
       totalAllPrice = totalAllPrice - totalAllPrice * (discountAmount / 100);
     }
-
     return totalAllPrice;
   };
+
   const increaseQuantity = (index) => {
-    // Tạo một bản sao mới của mảng newArr
     const newArrCopy = [...newArr];
-    console.log(newArrCopy);
-    // Tăng giá trị quantity của phần tử tương ứng
     newArrCopy[index].quantity += 1;
-    const filteredDevices = newArrCopy.map((device) => {
-      return {
-        smartDeviceId: device.id,
-        quantity: device.quantity,
-      };
-    });
-    // Cập nhật lại state của newArr với bản sao mới
+    const filteredDevices = newArrCopy.map((device) => ({
+      smartDeviceId: device.id,
+      quantity: device.quantity,
+    }));
     setFilterDevices(filteredDevices);
+    setNewArr(newArrCopy);
   };
+
+  const decreaseQuantity = (index) => {
+    const newArrCopy = [...newArr];
+    if (newArrCopy[index].quantity > 0) {
+      newArrCopy[index].quantity -= 1;
+    }
+    const filteredDevices = newArrCopy.map((device) => ({
+      smartDeviceId: device.id,
+      quantity: device.quantity,
+    }));
+    setFilterDevices(filteredDevices);
+    setNewArr(newArrCopy);
+  };
+
   const checkFileType = (files) => {
     const acceptedFileTypes = [
       'image/jpeg',
@@ -239,47 +206,34 @@ export function CreateDevice() {
     ];
     return files.every(file => acceptedFileTypes.includes(file.type));
   };
-  const decreaseQuantity = (index) => {
-    // Tạo một bản sao mới của mảng newArr
-    const newArrCopy = [...newArr];
-    // Tăng giá trị quantity của phần tử tương ứng
-    if (newArrCopy[index].quantity == 0) {
-      newArrCopy[index].quantity = 0;
-    } else {
-      newArrCopy[index].quantity -= 1;
-    }
-   
-    const filteredDevices = newArrCopy.map((device) => {
-      return {
-        smartDeviceId: device.id,
-        quantity: device.quantity,
-      };
-    });
 
-    // Cập nhật lại state của newArr với bản sao mới
-    setFilterDevices(filteredDevices);
+  const handleAcceptedFiles = (files) => {
+    if(checkFileType(files)){
+      setselectedFiles(files[0]);
+      messageApi.success({
+        type: 'success',
+        content: 'File uploaded successfully'
+      });
+    } else {
+      messageApi.error({
+        type: 'error',
+        content: 'Please select an image file'
+      });
+    }
   };
-  function handleAcceptedFiles(files) {
-    files.map((file) =>
-      Object.assign(file, {
-        preview: URL.createObjectURL(file),
-      })
-    );
-    setselectedFiles(files[0]);
-    console.log(files);
-  }
+
   const onManuChange = (value) => {
-    console.log(value);
     setmanufactureId(value);
   };
+
   const filterRemoveHandle = (itemId) => {
     const arrRemove = newArr.filter(item => item.id !== itemId);
-    const newFilterDevices = filterDevices.filter(item => item.smartDeviceId !== itemId)
+    const newFilterDevices = filterDevices.filter(item => item.smartDeviceId !== itemId);
     setNewArr(arrRemove);
-    setFilterDevices(newFilterDevices)
-  }
-  const onSubmitCreateDevice = (response) => {
+    setFilterDevices(newFilterDevices);
+  };
 
+  const onSubmitCreateDevice = (response) => {
     const form = new FormData();
     form.append('manufacturerId', response.manuId);
     for (const promotion of promotionList) {
@@ -290,8 +244,8 @@ export function CreateDevice() {
     form.append('description', response.description);
     form.append('completionTime', response.dateInstall);
     form.append('image', selectedFiles);
-    for (var i = 0; i < filterDevices.length; i++) {
-      form.append('smartDeviceIds', JSON.stringify(filterDevices[i]));
+    for (const device of filterDevices) {
+      form.append('smartDeviceIds', JSON.stringify(device));
     }
     mutateDevicePackge(form);
   };
@@ -313,110 +267,6 @@ export function CreateDevice() {
       <Form layout='vertical' onFinish={onSubmitCreateDevice}>
         <div className='pr-[23px] pl-[70px] pt-[20px] -mt-[200px]'>
           <div className='grid grid-cols-[1fr] gap-[30px] items-start'>
-            {/* <div className='flex flex-col gap-[30px]'>
-            <div className='w-full py-[30px] rounded-[4px] flex items-center justify-center flex-col shadow-md bg-[#FFFFFF]'>
-              <div className='relative max-w-[110px] mx-auto'>
-                <div className='absolute -bottom-[10px] right-[10px] z-20'>
-                  <input
-                    className='hidden'
-                    id='uploadImage'
-                    type='file'
-                    accept='.png, .jpg, .jpeg'
-                  />
-                  <label
-                    for='uploadImage'
-                    className='inline-block w-[32px] h-[32px] rounded-full bg-[#F3F6F9] shadow-sm cursor-pointer transition-all '
-                  >
-                    <Icon
-                      icon='mdi:camera'
-                      className='text-center absolute top-[8px] right-[8px]'
-                      style={{ color: '#212529' }}
-                    />
-                  </label>
-                </div>
-                <div className='w-[120px] h-[120px] rounded-full flex items-center justify-center bg-[#F3F3F9] relative shadow-sm'>
-                  <div
-                    style={{
-                      width: '110px',
-                      height: '110px',
-                      backgroundImage: `url(${profileImage})`,
-                      backgroundSize: 'cover',
-                    }}
-                    className='w-[110px] h-[110px] rounded-full bg-cover bg-no-repeat bg-center'
-                  ></div>
-                </div>
-              </div>
-              <div className='flex flex-col items-center'>
-                <span className='font-poppin font-medium text-[16px]'>
-                  Anna Adame
-                </span>
-                <span className='font-poppin font-normal text-[13px]'>
-                  Lead Designer / Developer
-                </span>
-              </div>
-            </div>
-            <div className='px-[15px] py-[13px] bg-white shadow-md '>
-              <div className='mb-[26px]'>
-                <span className='font-poppin font-medium text-[16px] text-[#495057]'>
-                  Complete Your Profile
-                </span>
-              </div>
-              <div className='relative w-full bg-[#EFF2F7] h-[15px]'>
-                <div
-                  style={{ width: '50%' }}
-                  className='absolute bg-[#F06548] left-[5px] top-1/2 -translate-y-1/2 h-[7px] rounded-[30px]'
-                ></div>
-                <div
-                  style={{ right: '50%', top: '-20px' }}
-                  className='absolute translate-x-1/2 z-30 bg-[#405189] text-white font-poppin font-medium text-[9px] py-[1.5px] px-[3.5px] rounded-[4px]'
-                >
-                  50%
-                </div>
-              </div>
-            </div>
-            <div className='px-[15px] py-[13px] bg-white shadow-md'>
-              <div className='mb-[26px]'>
-                <span className='font-poppin font-medium text-[16px] text-[#495057]'>
-                  Portfolio
-                </span>
-              </div>
-              <div className='flex flex-col gap-[10px]'>
-                <div className='flex items-center gap-[20px]'>
-                  <img src={github} alt='' />
-                  <div className='w-full'>
-                    <input
-                      value='@daveadame'
-                      type='text'
-                      placeholder=''
-                      className='rounded-[4px] w-full px-[15px] pt-[8px] pb-[10px] font-poppin font-normal text-[13px] outline-none border border-[#CED4DA]'
-                    />
-                  </div>
-                </div>
-                <div className='flex items-center gap-[20px]'>
-                  <img src={github} alt='' />
-                  <div className='w-full'>
-                    <input
-                      value='@daveadame'
-                      type='text'
-                      placeholder=''
-                      className='rounded-[4px] w-full px-[15px] pt-[8px] pb-[10px] font-poppin font-normal text-[13px] outline-none border border-[#CED4DA]'
-                    />
-                  </div>
-                </div>
-                <div className='flex items-center gap-[20px]'>
-                  <img src={github} alt='' />
-                  <div className='w-full'>
-                    <input
-                      value='@daveadame'
-                      type='text'
-                      placeholder=''
-                      className='rounded-[4px] w-full px-[15px] pt-[8px] pb-[10px] font-poppin font-normal text-[13px] outline-none border border-[#CED4DA]'
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> */}
             <div className='bg-white shadow-md'>
               <div className='px-[24px] py-[20px]'>
                 <div className='flex items-center mb-[15px] gap-[24px]'>
@@ -450,14 +300,6 @@ export function CreateDevice() {
                   </div>
                   <div className='w-full'>
                     <div className='w-full'>
-                      {/* <Select
-                        className=''
-                        defaultValue={manu[0]?.value}
-                        style={{
-                          width: '100%',
-                        }}
-                        options={manu}
-                      /> */}
                       <Form.Item label='Chọn hãng' name='manuId'>
                         <Select
                           placeholder='Select manufacture'
@@ -494,7 +336,7 @@ export function CreateDevice() {
                           onDropdownVisibleChange={(visible) =>
                             setOpenPromotion(visible)
                           }
-                          onChange={onChangePromotion}
+                          onChange={setPromotionList}
                         >
                           {promotion?.map((item, index) => (
                             <Option value={item.value} key={index}>
@@ -540,15 +382,7 @@ export function CreateDevice() {
                 </div>
                 <Dropzone
                   onDrop={(acceptedFiles) => {
-                    if(checkFileType(acceptedFiles)){
-                      handleAcceptedFiles(acceptedFiles);
-                    } else{
-                      messageApi.error({
-                        type: 'error',
-                        content: 'Vui lòng chọn file là ảnh'
-                      })
-                    }
-                   
+                    handleAcceptedFiles(acceptedFiles);
                   }}
                 >
                   {({ getRootProps, getInputProps }) => (
@@ -652,7 +486,7 @@ export function CreateDevice() {
                     </th>
                   </tr>
                   {newArr?.map((item, index) => (
-                    <tr className='border-t border-b border-[#E9EBEC] '>
+                    <tr className='border-t border-b border-[#E9EBEC] ' key={item.id}>
                       <td className='gap-[8px] pl-[14px] py-[12px] flex  items-center '>
                         <img
                           src={item.images[0].url}
@@ -665,22 +499,23 @@ export function CreateDevice() {
                         </div>
                       </td>
                       <td className=''>
-                        <div class='flex items-center'>
+                        <div className='flex items-center'>
                           <span
                             onClick={() => decreaseQuantity(index)}
-                            class='btn decrease bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded-l'
+                            className='btn decrease bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded-l'
                           >
                             -
                           </span>
                           <input
                             type='text'
-                            class='quantity-input bg-white focus:outline-none focus:ring focus:border-blue-300 border-l border-r w-16 text-center'
-                            value={item?.quantity}
+                            className='quantity-input bg-white focus:outline-none focus:ring focus:border-blue-300 border-l border-r w-16 text-center'
+                            value={item.quantity}
+                            readOnly
                           ></input>
 
                           <span
                             onClick={() => increaseQuantity(index)}
-                            class='btn increase bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 rounded-r'
+                            className='btn increase bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 rounded-r'
                           >
                             +
                           </span>
@@ -689,12 +524,12 @@ export function CreateDevice() {
                       <td className=''>
                         <div className='flex flex-col items-start'>
                           <span className='text-center font-poppin text-[14px] font-medium'>
-                            {formatCurrency(item.price * item?.quantity)}
+                            {formatCurrency(item.price * item.quantity)}
                           </span>
                         </div>
                       </td>
                       <td className=''>
-                        <div className=' '>
+                        <div className=''>
                           <span className='pl-[20px] text-center font-poppin text-[14px] font-medium'>
                             {formatCurrency(item.installationPrice)}
                           </span>
@@ -731,13 +566,13 @@ export function CreateDevice() {
                     {formatCurrency(totalPrice(newArr))}
                   </span>
                 </div>
-                <br></br>
+                <br />
                 <div className='flex items-center justify-between'>
                   <span className='inline-block font-poppin font-normal text-[16px]'>
                     Chiết khấu
                   </span>
                   <span className='inline-block font-poppin font-normal text-[16px]'>
-                    {promotionId?.discountAmount}%
+                    {discountAmount}%
                   </span>
                 </div>
               </div>
@@ -746,9 +581,7 @@ export function CreateDevice() {
                   Tổng
                 </span>
                 <span className='inline-block font-poppin font-normal text-red-500 text-[16px] mb-[15px]'>
-                  {formatCurrency(
-                    totalAllPrice(newArr, promotionId?.discountAmount)
-                  )}
+                  {formatCurrency(totalAllPrice(newArr, discountAmount))}
                 </span>
               </div>
               <Button

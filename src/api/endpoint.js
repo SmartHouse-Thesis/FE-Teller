@@ -7,6 +7,7 @@ export const END_POINT_API = {
     PROMOTION: "/api/promotions",
     MANUFACTURE: "/api/manufacturers",
     STAFF: "/api/staffs",
-    USER: "api/auth"
+    USER: "api/auth",
+    STATIC: "/api/statistics/revenues"
   };
   
