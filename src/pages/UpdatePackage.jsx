@@ -71,7 +71,7 @@ export function UpdatePackage() {
       onError: () => {
         messageApi.open({
           type: 'error',
-          content: 'Error occur when get manufactures list',
+          content: 'Không thể áp dụng 2 mã giảm giá cho cùng 1 gói sản phẩm',
         });
       },
     });
@@ -129,7 +129,7 @@ export function UpdatePackage() {
         const newfilterPromotion = response.promotions.map((item) => {
           newPromotionList.push(item.id);
         });
-        setIdPromote(response.promotions[0].discountAmount);
+        //setIdPromote(response.promotions[0].discountAmount);
         setNewPromotion(newPromotionList);
         setFilterDevices(filteredData);
         setNewPackage(response);
@@ -341,10 +341,10 @@ export function UpdatePackage() {
   }
   const onChangePromotion = (value) => {
     setPromotionList(value);
-    // setIdPromote(value);
-    // if (value) {
-    //   mutatePromotionId(value);
-    // }
+    setIdPromote(value);
+    if (value) {
+      mutatePromotionId(value);
+    }
   };
   const onManuChange = (value) => {
     setmanufactureId(value);
@@ -737,7 +737,8 @@ export function UpdatePackage() {
                       Chiết khấu
                     </span>
                     <span className='inline-block font-poppin font-normal text-[16px]'>
-                      {idPromote}%
+                      {/* {idPromote}% */}
+                      {promotionId?.discountAmount}%
                     </span>
                   </div>
                 </div>
@@ -747,7 +748,8 @@ export function UpdatePackage() {
                   </span>
                   <span className='inline-block font-poppin font-normal text-red-500 text-[16px] mb-[15px]'>
                     {formatCurrency(
-                      totalAllPrice(newArr, idPromote)
+                      // totalAllPrice(newArr, idPromote)
+                      totalAllPrice(newArr, promotionId?.discountAmount)
                     )}
                   </span>
                 </div>

@@ -17,7 +17,7 @@ export function SignIn() {
     onSuccess: (response) => {
       localStorage.setItem('accessToken', response.accessToken);
       const userDecode = jwtDecode(response.accessToken);
-      navigate('/device-page');
+      navigate('/dashboard');
     },
     onError: (response) => {
       console.log(response);

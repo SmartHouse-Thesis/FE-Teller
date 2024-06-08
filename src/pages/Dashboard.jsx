@@ -77,11 +77,11 @@ export function Dashboard() {
       dataIndex: 'contractId',
       key: 'contractId',
     },
-    {
-      title: 'Tên',
-      dataIndex: 'name',
-      key: 'name',
-    },
+    // {
+    //   title: 'Tên',
+    //   dataIndex: 'name',
+    //   key: 'name',
+    // },
     {
       title: 'Phương thức thanh toán',
       dataIndex: 'paymentMethod',
@@ -97,40 +97,40 @@ export function Dashboard() {
       dataIndex: 'status',
       key: 'status',
     },
-    {
-      title: 'Ngày tạo',
-      dataIndex: 'createAt',
-      key: 'createAt',
-      render: (date) => dayjs(date).format('YYYY-MM-DD HH:mm:ss'),
-    },
+    // {
+    //   title: 'Ngày tạo',
+    //   dataIndex: 'createAt',
+    //   key: 'createAt',
+    //   render: (date) => dayjs(date).format('YYYY-MM-DD HH:mm:ss'),
+    // },
   ];
 
   return (
     <>
       {contextHolder}
       <div style={{ padding: 24 }}>
-        <h2>Trang Tổng Quan</h2>
+        <h2>Thống kê doanh thu </h2>
         <Spin spinning={loading}>
           <div className="filter-section">
             <DatePicker picker="month" onChange={handleMonthChange} format="MM" />
           </div>
           <div className="statistics-section">
             <Row gutter={16}>
-              <Col span={8}>
+              <Col span={12}>
                 <Card title="Tổng số tiền" bordered={false}>
                   {statistics.totalAmount.toLocaleString('vi-VN')} VND
                 </Card>
               </Col>
-              <Col span={8}>
+              <Col span={12}>
                 <Card title="Số lượng giao dịch" bordered={false}>
                   {statistics.transactionCount}
                 </Card>
               </Col>
-              <Col span={8}>
+              {/* <Col span={8}>
                 <Card title="Số tiền trung bình" bordered={false}>
                   {statistics.averageAmount.toLocaleString('vi-VN')} VND
                 </Card>
-              </Col>
+              </Col> */}
             </Row>
           </div>
           <div className="flex gap-5">
@@ -138,14 +138,15 @@ export function Dashboard() {
               <h3>Biểu Đồ Giao Dịch</h3>
               <Bar data={barChartData} />
             </div>
-            <div className="chart-section w-1/2">
+            {/* <div className="chart-section w-1/2">
               <h3>Biểu Đồ Tổng Quan</h3>
               <Pie data={pieChartData} />
-            </div>
-          </div>
-          <div className="table-section">
+            </div> */}
+            <div className="table-section w-1/2" >
             <Table columns={columns} dataSource={filteredTransactions} rowKey="id" />
           </div>
+          </div>
+
         </Spin>
       </div>
     </>
