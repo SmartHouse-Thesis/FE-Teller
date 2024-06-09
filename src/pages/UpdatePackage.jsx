@@ -367,11 +367,23 @@ export function UpdatePackage() {
   const onSubmitCreateDevice = (response) => {
     // console.log(response);
     // console.log(filterDevices);
+    function checkEmptyArrayAndZeroQuantity(filterDevices) {
+      // Kiểm tra mảng rỗng
+      const hasOnlyZeroQuantity = filterDevices.every(item => item.quantity === 0);
+  
+      // Trả về true nếu cả hai điều kiện đều thỏa mãn
+      return hasOnlyZeroQuantity;
+  
 
+  }
     const form = new FormData();
     form.append('manufacturerId', response?.manufacture);
     for (const promotion of promotionList) {
-      form.append('promotionIds', promotion);
+      if(promotionList == []){
+        form.append('promotionIds', promotion);
+      }
+     
+
     }
     form.append('name', response?.name);
     form.append('warrantyDuration', response?.warrantyDuration);
@@ -379,11 +391,22 @@ export function UpdatePackage() {
     form.append('completionTime', response?.completionTime);
     form.append('image', selectedFiles);
     // form.append('smartDevices', JSON.stringify(filterDevices));
+    
     for (var i = 0; i < filterDevices.length; i++) {
       form.append('smartDevices', JSON.stringify(filterDevices[i]));
     }
     // console.log(arr[i]);
-    mutateUpdate(form);
+    checkEmptyArrayAndZeroQuantity(filterDevices);
+    if(checkEmptyArrayAndZeroQuantity){
+      messageApi.open({
+        type: 'error',
+        content: 'Không có sản phẩm nào trong gói',
+      });
+      return;
+    }else{
+      mutateUpdate(form);
+    }
+   
 
     // const form = new FormData();
     // form.append('manufacturerId', response.manuId);

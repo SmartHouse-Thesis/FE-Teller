@@ -237,6 +237,15 @@ export function CreateDevice() {
   };
 
   const onSubmitCreateDevice = (response) => {
+    function checkEmptyArrayAndZeroQuantity(filterDevices) {
+      // Kiểm tra mảng rỗng
+      const hasOnlyZeroQuantity = filterDevices.every(item => item.quantity === 0);
+  
+      // Trả về true nếu cả hai điều kiện đều thỏa mãn
+      return hasOnlyZeroQuantity;
+  
+
+  }
     const form = new FormData();
     form.append('manufacturerId', response.manuId);
     for (const promotion of promotionList) {
@@ -250,7 +259,16 @@ export function CreateDevice() {
     for (const device of filterDevices) {
       form.append('smartDeviceIds', JSON.stringify(device));
     }
-    mutateDevicePackge(form);
+    if(checkEmptyArrayAndZeroQuantity){
+      messageApi.open({
+        type: 'error',
+        content: 'Không có sản phẩm nào trong gói',
+      });
+      return;
+    }else{
+      mutateDevicePackge(form);
+    }
+  
   };
 
   return (

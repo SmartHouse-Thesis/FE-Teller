@@ -485,7 +485,7 @@ export function PromotionPage() {
             </div>
             <Col span={24}>
               <Flex justify='end' gap={4}>
-                <Button>Hủy</Button>
+                <Button onClick={() => handleUpdateCancel()}>Hủy</Button>
                 <Button
                   type='primary'
                   htmlType='submit'
