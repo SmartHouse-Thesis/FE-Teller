@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import profileImage from '../../public/image/profile.jpeg';
 import overlay from '../../public/image/overlayprofile.png';
 import github from '../../public/image/github-icon.png';
@@ -42,7 +42,7 @@ export function CreateDevice() {
   const [promotion, setPromotion] = useState([]);
   const [manu, setManu] = useState([]);
   const [discountAmount, setDiscountAmount] = useState(0);
-
+  const navigate = useNavigate();
   const { isPending: contractLoading, mutate } = useMutation({
     mutationFn: () => promotionAPI.getPromotion(),
     onSuccess: (response) => {
@@ -86,6 +86,9 @@ export function CreateDevice() {
           type: 'success',
           content: 'Tạo gói sản phẩm thành công',
         });
+        setTimeout(() => {
+          navigate("/package-page");
+        }, 1000)
       },
       onError: () => {
         messageApi.open({

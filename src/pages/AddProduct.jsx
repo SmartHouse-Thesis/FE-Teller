@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import profileImage from '../../public/image/profile.jpeg';
 import overlay from '../../public/image/overlayprofile.png';
 import github from '../../public/image/github-icon.png';
@@ -15,7 +15,7 @@ export function AddProduct() {
   const [messageApi, contextHolder] = message.useMessage();
   const [open, setOpen] = useState(false);
   const [selectedFile, setSelectedFiles] = useState();
-
+  const navigate = useNavigate();
   function handleAcceptedFiles(files) {
     files.map((file) =>
       Object.assign(file, {
@@ -32,6 +32,9 @@ export function AddProduct() {
           type: 'success',
           content: 'Tạo sản phẩm thành công',
         });
+        setTimeout(() => {
+          navigate('/device-page')
+        }, 1000)
       },
       onError: (error) => {
         messageApi.open({

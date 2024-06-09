@@ -6,7 +6,7 @@ const packageAPI = {
     return axiosClient.get(`${END_POINT_API.DEVICE_PACKAGE}?name=${name}&status=Active&pageSize=1000`);
   },
   getPackageDevicesAll: () => {
-    return axiosClient.get(`${END_POINT_API.DEVICE_PACKAGE}?status=Active`);
+    return axiosClient.get(`${END_POINT_API.DEVICE_PACKAGE}?status=Active&pageSize=1000`);
   },
   createDevicePage: (params) =>
     axiosFormClient.post(END_POINT_API.DEVICE_PACKAGE, params),

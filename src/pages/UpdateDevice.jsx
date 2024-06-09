@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useParams } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useParams } from 'react-router-dom';
 import profileImage from '../../public/image/profile.jpeg';
 import overlay from '../../public/image/overlayprofile.png';
 import github from '../../public/image/github-icon.png';
@@ -34,6 +34,8 @@ export function UpdateDevice() {
   const [newArr, setNewArr] = useState([]);
   const [deviceId, setDeviceId] = useState();
   let { id } = useParams();
+
+  const navigate = useNavigate();
   const { isPending: contractLoading, mutate } = useMutation({
     mutationFn: () => promotionAPI.getPromotion(),
     onSuccess: (response) => {
@@ -120,6 +122,9 @@ export function UpdateDevice() {
           type: 'success',
           content: 'Cập nhật thiết bị thành công',
         });
+        setTimeout(() => {
+          navigate('/device-page')
+        }, 1000)
       },
       onError: (error) => {
         messageApi.open({

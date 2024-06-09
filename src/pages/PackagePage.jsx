@@ -3,7 +3,7 @@ import { Spin, message, Input, Table, Popconfirm, Pagination } from 'antd';
 import { BreadCrumb } from '../components/BreadCrumb';
 import packageAPI from '../api/package';
 import { useMutation } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { formatCurrency } from '../utils/formatCurrentcy';
 import { useDebounce } from '../hook/useDebounce';
 import { Icon } from '@iconify/react';
@@ -16,7 +16,7 @@ export function PackagePage() {
   const [value, setValue] = useDebounce('', 500);
   const [openPopupConfirm, setOpenPopUpConfirm] = useState(false);
   const [smartId, setSmartId] = useState();
-
+  const navigate = useNavigate();
   const showPopconfirm = (accountId) => {
     setOpenPopUpConfirm(true);
   };
@@ -41,8 +41,9 @@ export function PackagePage() {
     onSuccess: (response) => {
       messageApi.open({
         type: 'success',
-        content: 'Cập nhật thiết bị thành công',
+        content: 'Cập nhật gói sản phẩm thành công',
       });
+      navigate('/package-page')
     },
     onError: (error) => {
       messageApi.open({

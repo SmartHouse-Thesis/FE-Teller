@@ -4,7 +4,7 @@ import { END_POINT_API } from "../endpoint";
 const promotionAPI = {
   getPromotion: () => {
     return axiosClient.get(
-      `${END_POINT_API.PROMOTION}?status=Active`
+      `${END_POINT_API.PROMOTION}?status=Active&pageSize=100`
     );
   },
   getPromotionById: (promotionId) => {
@@ -13,6 +13,7 @@ const promotionAPI = {
   createPromotion: (params) => 
      axiosFormClient.post(`${END_POINT_API.PROMOTION}`, params)
   ,
+  updatePromotion: (params, promotionId) => axiosFormClient.put(`${END_POINT_API.PROMOTION}/${promotionId}`, params)
 };
 
 export default promotionAPI;

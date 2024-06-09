@@ -147,7 +147,7 @@ export function Sidebar() {
                 </Link>
               </div> */}
 
-              <div>
+              {/* <div>
                 <Link
                   to='/profile'
                   className='flex items-center justify-start gap-[10px]'
@@ -161,7 +161,7 @@ export function Sidebar() {
                     Thông tin cá nhân
                   </span>
                 </Link>
-              </div>
+              </div> */}
             </div>
             <div className='pb-[40px]'>
               <Link

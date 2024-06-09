@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useParams } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useParams } from 'react-router-dom';
 import profileImage from '../../public/image/profile.jpeg';
 import overlay from '../../public/image/overlayprofile.png';
 import github from '../../public/image/github-icon.png';
@@ -48,6 +48,7 @@ export function UpdatePackage() {
   const [newArr, setNewArr] = useState([]);
   const [manufactureId, setmanufactureId] = useState();
   const [devicePackageId, setDevicePackageId] = useState();
+  const navigate = useNavigate();
   const dateInstall = [
     {
       date: 1,
@@ -67,6 +68,7 @@ export function UpdatePackage() {
       mutationFn: () => promotionAPI.getPromotionById(idPromote),
       onSuccess: (response) => {
         setPromotionId(response);
+        console.log(response);
       },
       onError: () => {
         messageApi.open({
@@ -129,7 +131,7 @@ export function UpdatePackage() {
         const newfilterPromotion = response.promotions.map((item) => {
           newPromotionList.push(item.id);
         });
-        //setIdPromote(response.promotions[0].discountAmount);
+        setPromotionId(response?.promotions[0]);
         setNewPromotion(newPromotionList);
         setFilterDevices(filteredData);
         setNewPackage(response);
@@ -185,8 +187,11 @@ export function UpdatePackage() {
       onSuccess: (response) => {
         messageApi.open({
           type: 'success',
-          content: 'Cập nhật thiết bị thành công',
+          content: 'Cập nhật gói sản phẩm thành công',
         });
+       setTimeout(() => {
+        navigate('/package-page')
+       }, 1000)
       },
       onError: (response) => {
         console.log(response);
@@ -302,8 +307,9 @@ export function UpdatePackage() {
   const decreaseQuantity = (index) => {
     // Tạo một bản sao mới của mảng newArr
     const newArrCopy = [...newArr];
+    console.log(newArrCopy);
     // Tăng giá trị quantity của phần tử tương ứng
-    if (newArrCopy[index].quantity == 0) {
+    if (newArrCopy[index].smartDeviceQuantity == 0) {
       newArrCopy[index].smartDeviceQuantity = 0;
     } else {
       newArrCopy[index].smartDeviceQuantity -= 1;
@@ -340,6 +346,7 @@ export function UpdatePackage() {
     console.log(files);
   }
   const onChangePromotion = (value) => {
+    console.log(value);
     setPromotionList(value);
     setIdPromote(value);
     if (value) {

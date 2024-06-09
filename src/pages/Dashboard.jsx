@@ -24,20 +24,22 @@ export function Dashboard() {
       setLoading(false);
     },
     onError: () => {
-     
       setLoading(false);
+      messageApi.error('Failed to fetch data');
     },
   });
 
   useEffect(() => {
     setLoading(true);
     mutateData(month);
-  }, [month]);
+  }, [month, mutateData]);
 
   const calculateStatistics = (data) => {
     const totalAmount = data.reduce((acc, item) => acc + item.amount, 0);
     const transactionCount = data.length;
-    const averageAmount = transactionCount ? (totalAmount / transactionCount).toFixed(2) : 0;
+    const averageAmount = transactionCount
+      ? (totalAmount / transactionCount).toFixed(2)
+      : 0;
     return { totalAmount, transactionCount, averageAmount };
   };
 
@@ -51,11 +53,11 @@ export function Dashboard() {
   const statistics = calculateStatistics(filteredTransactions);
 
   const barChartData = {
-    labels: filteredTransactions.map(item => item.contractId),
+    labels: filteredTransactions.map((item) => item.contractId),
     datasets: [
       {
         label: 'Số tiền',
-        data: filteredTransactions.map(item => item.amount),
+        data: filteredTransactions.map((item) => item.amount),
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
       },
     ],
@@ -65,7 +67,11 @@ export function Dashboard() {
     labels: ['Tổng số tiền', 'Số tiền trung bình', 'Số lượng giao dịch'],
     datasets: [
       {
-        data: [statistics.totalAmount, statistics.averageAmount, statistics.transactionCount],
+        data: [
+          statistics.totalAmount,
+          statistics.averageAmount,
+          statistics.transactionCount,
+        ],
         backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
       },
     ],
@@ -77,11 +83,6 @@ export function Dashboard() {
       dataIndex: 'contractId',
       key: 'contractId',
     },
-    // {
-    //   title: 'Tên',
-    //   dataIndex: 'name',
-    //   key: 'name',
-    // },
     {
       title: 'Phương thức thanh toán',
       dataIndex: 'paymentMethod',
@@ -97,56 +98,49 @@ export function Dashboard() {
       dataIndex: 'status',
       key: 'status',
     },
-    // {
-    //   title: 'Ngày tạo',
-    //   dataIndex: 'createAt',
-    //   key: 'createAt',
-    //   render: (date) => dayjs(date).format('YYYY-MM-DD HH:mm:ss'),
-    // },
   ];
 
   return (
     <>
       {contextHolder}
       <div style={{ padding: 24 }}>
-        <h2>Thống kê doanh thu </h2>
         <Spin spinning={loading}>
-          <div className="filter-section">
-            <DatePicker picker="month" onChange={handleMonthChange} format="MM" />
+          <h2>Thống kê doanh thu</h2>
+          <div className='filter-section'>
+            <DatePicker
+              picker='month'
+              defaultValue={dayjs()} // Set default value to the current month
+              onChange={handleMonthChange}
+              format='MM'
+            />
           </div>
-          <div className="statistics-section">
+          <div className='statistics-section'>
             <Row gutter={16}>
               <Col span={12}>
-                <Card title="Tổng số tiền" bordered={false}>
+                <Card title='Tổng số tiền' bordered={false}>
                   {statistics.totalAmount.toLocaleString('vi-VN')} VND
                 </Card>
               </Col>
               <Col span={12}>
-                <Card title="Số lượng giao dịch" bordered={false}>
+                <Card title='Số lượng giao dịch' bordered={false}>
                   {statistics.transactionCount}
                 </Card>
               </Col>
-              {/* <Col span={8}>
-                <Card title="Số tiền trung bình" bordered={false}>
-                  {statistics.averageAmount.toLocaleString('vi-VN')} VND
-                </Card>
-              </Col> */}
             </Row>
           </div>
-          <div className="flex gap-5">
-            <div className="chart-section w-1/2">
+          <div className='flex gap-5'>
+            <div className='chart-section w-1/2'>
               <h3>Biểu Đồ Giao Dịch</h3>
               <Bar data={barChartData} />
             </div>
-            {/* <div className="chart-section w-1/2">
-              <h3>Biểu Đồ Tổng Quan</h3>
-              <Pie data={pieChartData} />
-            </div> */}
-            <div className="table-section w-1/2" >
-            <Table columns={columns} dataSource={filteredTransactions} rowKey="id" />
+            <div className='table-section w-1/2'>
+              <Table
+                columns={columns}
+                dataSource={filteredTransactions}
+                rowKey='id'
+              />
+            </div>
           </div>
-          </div>
-
         </Spin>
       </div>
     </>
